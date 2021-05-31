@@ -17,6 +17,7 @@ for imPath in myList:
 print(len(overlayList))
 
 header = overlayList[0]
+drawColor = (255, 0, 255)
 
 cap = cv2.VideoCapture(-1)  # linux -1, win 0/1
 cap.set(3, 1280)
@@ -33,15 +34,49 @@ while True:
 
     # (2) find hand landmarks
     img = detector.findHands(img)
+    lmList = detector.findPosition(img, draw=False)
 
-    # (3) identify upright phalanges
-    #     only draw when index finger is up
+    # print(lmList)
+    if len(lmList) != 0:
+        # print(lmList)
 
-    # (4) identify selection mode
-    #     only when two fingers are up
+        # get tip of fingers
+        x1, y1 = lmList[8][1:]  # index
+        x2, y2 = lmList[12][1:]  # middle
 
-    # (5) if drawing mode
-    #     only when index finger is up
+        # (3) identify upright phalanges
+        #     only draw when index finger is up
+        fingers = detector.fingersUp()
+        # print(fingers)
+
+        # (4) SELECTION MODE
+        if fingers[1] and fingers[2]:
+            print("Selection Mode")
+
+            # if within 100px header region
+            if y1 < 100:
+                # RED
+                if 100 < x1 < 400:
+                    header = overlayList[1]
+                    drawColor = (0, 0, 255)
+                # GREEN
+                elif 450 < x1 < 740:
+                    header = overlayList[3]
+                    drawColor = (0, 255, 0)
+                # BLUE
+                elif 765 < x1 < 1035:
+                    header = overlayList[2]
+                    drawColor = (255, 0, 0)
+                # ERASER
+                elif 1047 < x1 < 1265:
+                    header = overlayList[0]
+                    drawColor = (0, 0, 0)
+        cv2.rectangle(img, (x1, y1-25), (x2, y2+25), drawColor, cv2.FILLED)
+
+        # (5) DRAWING MODE
+        if fingers[1] and fingers[2] == False:
+            cv2.circle(img, (x1, y1), 15, drawColor, cv2.FILLED)
+            print("Drawing Mode")
 
     # render header
     img[0:100, 0:1280] = header
