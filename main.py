@@ -6,6 +6,11 @@ import time
 import os
 import HandTrackingModule as htm
 
+# Vars #
+brushThickness = 15
+########
+
+# import assets
 folderPath = "assets"
 myList = os.listdir(folderPath)
 print(myList)
@@ -19,12 +24,19 @@ print(len(overlayList))
 header = overlayList[0]
 drawColor = (255, 0, 255)
 
+# grab video device
 cap = cv2.VideoCapture(-1)  # linux -1, win 0/1
 cap.set(3, 1280)
 cap.set(4, 720)
 
 # high detection confidence for painting; lower if errors occur
 detector = htm.handDetector(detectionCon=0.85)
+
+# xprev & yprev init
+xp, yp = 0, 0
+
+# init canvas (1280x720 with 3 channel colors as 8bit unsigned int)
+imgCanvas = np.zeros((720, 1280, 3), np.uint8)
 
 while True:
     # (1) import image
@@ -49,7 +61,7 @@ while True:
         fingers = detector.fingersUp()
         # print(fingers)
 
-        # (4) SELECTION MODE
+        # (4) SELECTION MODE (index & middle finger)
         if fingers[1] and fingers[2]:
             print("Selection Mode")
 
@@ -73,12 +85,22 @@ while True:
                     drawColor = (0, 0, 0)
         cv2.rectangle(img, (x1, y1-25), (x2, y2+25), drawColor, cv2.FILLED)
 
-        # (5) DRAWING MODE
+        # (5) DRAWING MODE (index only)
         if fingers[1] and fingers[2] == False:
             cv2.circle(img, (x1, y1), 15, drawColor, cv2.FILLED)
             print("Drawing Mode")
 
+            if xp == 0 and yp == 0:
+                xp, yp = x1, y1
+
+            cv2.line(img, (xp, yp), (x1, y1), drawColor, brushThickness)
+            cv2.line(imgCanvas, (xp, yp), (x1, y1), drawColor, brushThickness)
+
+            # update
+            xp, yp = x1, y1
+
     # render header
     img[0:100, 0:1280] = header
-    cv2.imshow("Image", img)
+    cv2.imshow("AirPaint", img)
+    cv2.imshow("Canvas", imgCanvas)
     cv2.waitKey(1)
