@@ -23,7 +23,7 @@ for imPath in myList:
 print(len(overlayList))
 
 header = overlayList[0]
-drawColor = (255, 0, 255)
+drawColor = (255, 0, 255) # default color
 
 # grab video device
 cap = cv2.VideoCapture(-1)  # linux -1, win 0/1
