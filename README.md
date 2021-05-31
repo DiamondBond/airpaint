@@ -12,6 +12,8 @@ python3 main.py
 ```
 
 ## Features
+- Use two fingers together to select a color: hover over a color to select it
+- Use one finger to draw
 - R/G/B only palette
 - Eraser
 - 20~30fps @ 720p
@@ -38,3 +40,6 @@ Traceback (most recent call last):
 TypeError: object of type 'NoneType' has no len()
 ```
 To avoid this please place one of your hands within the webcams POV prior to hitting enter to run the script (also: wiggling your fingers slowly upon starting the script sometimes help the detection of fingers).
+- Its very sensitive and is prone to crashing easily - there is not much I can do about this as of right now, sorry.
+
+## Have Fun! :)
