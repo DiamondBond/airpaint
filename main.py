@@ -8,6 +8,7 @@ import HandTrackingModule as htm
 
 # Vars #
 brushThickness = 15
+eraserThickness = 100
 ########
 
 # import assets
@@ -45,7 +46,7 @@ while True:
     img = cv2.flip(img, 1)
 
     # (2) find hand landmarks
-    img = detector.findHands(img)
+    img = detector.findHands(img, draw=False)
     lmList = detector.findPosition(img, draw=False)
 
     # print(lmList)
@@ -63,6 +64,7 @@ while True:
 
         # (4) SELECTION MODE (index & middle finger)
         if fingers[1] and fingers[2]:
+            xp, yp = 0, 0  # reset
             print("Selection Mode")
 
             # if within 100px header region
@@ -83,24 +85,39 @@ while True:
                 elif 1047 < x1 < 1265:
                     header = overlayList[0]
                     drawColor = (0, 0, 0)
-        cv2.rectangle(img, (x1, y1-25), (x2, y2+25), drawColor, cv2.FILLED)
+            cv2.rectangle(img, (x1, y1-25), (x2, y2+25), drawColor, cv2.FILLED)
 
         # (5) DRAWING MODE (index only)
         if fingers[1] and fingers[2] == False:
             cv2.circle(img, (x1, y1), 15, drawColor, cv2.FILLED)
             print("Drawing Mode")
 
+            # first frame condition
             if xp == 0 and yp == 0:
                 xp, yp = x1, y1
 
-            cv2.line(img, (xp, yp), (x1, y1), drawColor, brushThickness)
-            cv2.line(imgCanvas, (xp, yp), (x1, y1), drawColor, brushThickness)
+            if drawColor == (0, 0, 0):
+                cv2.line(img, (xp, yp), (x1, y1), drawColor, eraserThickness)
+                cv2.line(imgCanvas, (xp, yp), (x1, y1),
+                         drawColor, eraserThickness)
+            else:
+                cv2.line(img, (xp, yp), (x1, y1), drawColor, brushThickness)
+                cv2.line(imgCanvas, (xp, yp), (x1, y1),
+                         drawColor, brushThickness)
 
             # update
             xp, yp = x1, y1
 
+    imgGray = cv2.cvtColor(imgCanvas, cv2.COLOR_BGR2GRAY)
+    _, imgInv = cv2.threshold(imgGray, 50, 255, cv2.THRESH_BINARY_INV)
+    imgInv = cv2.cvtColor(imgInv, cv2.COLOR_GRAY2BGR)
+    img = cv2.bitwise_and(img, imgInv)  # add images
+    img = cv2.bitwise_or(img, imgCanvas)
+
     # render header
     img[0:100, 0:1280] = header
+    #img = cv2.addWeighted(img, 0.5, imgCanvas, 0.5, 0)
     cv2.imshow("AirPaint", img)
-    cv2.imshow("Canvas", imgCanvas)
+    #cv2.imshow("Canvas", imgCanvas)
+    #cv2.imshow("Inverse", imgInv)
     cv2.waitKey(1)
