@@ -1,0 +1,1 @@
+pip3 install absl-py attrs comtypes dataclasses enum34 future mediapipe numpy opencv-python pip protobuf psutil pycaw setuptools six wheel
