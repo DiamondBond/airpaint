@@ -9,6 +9,9 @@ cd ~/airpaint
 pip3 install -r requirements.txt
 # place your hand within the webcams POV
 python3 main.py
+# or for a looped version
+chmod +x run.sh
+./run.sh
 ```
 
 ## Features

@@ -47,6 +47,7 @@ while True:
 
     # (2) find hand landmarks
     img = detector.findHands(img, draw=False)
+    #img = detector.findHands(img) # debug
     lmList = detector.findPosition(img, draw=False)
 
     # print(lmList)
